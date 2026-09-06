@@ -6,33 +6,62 @@ export function validarCrearPrestamo(
 ): CrearPrestamoRequestDto {
   const errores: string[] = [];
 
-  if (typeof cuerpo !== 'object' || cuerpo === null) {
-    throw new ValidacionError(['El cuerpo debe ser en formato JSON']);
+  if (
+    typeof cuerpo !== 'object' ||
+    cuerpo === null ||
+    Array.isArray(cuerpo)
+  ) {
+    throw new ValidacionError([
+      'El cuerpo debe ser un objeto JSON'
+    ]);
   }
 
   const c = cuerpo as Record<string, unknown>;
 
-  if (typeof c.libroId !== 'string' || c.libroId.trim() === '') {
-    errores.push('libroId debe ser un texto y no debe ser vacio');
+  if (
+    typeof c.libroId !== 'string' ||
+    c.libroId.trim() === ''
+  ) {
+    errores.push(
+      'libroId debe ser un texto no vacio'
+    );
   }
 
-  if (typeof c.socioId !== 'string' || c.socioId.trim() === '') {
-    errores.push('socioId debe ser un texto no vacio');
+  if (
+    typeof c.socioId !== 'string' ||
+    c.socioId.trim() === ''
+  ) {
+    errores.push(
+      'socioId debe ser un texto no vacio'
+    );
   }
 
-  if (!Array.isArray(c.ejemplares) || c.ejemplares.length === 0) {
-    errores.push('ejemplares debe ser un arreglo con al menos un elemento');
+  if (
+    !Array.isArray(c.ejemplares) ||
+    c.ejemplares.length === 0
+  ) {
+    errores.push(
+      'ejemplares debe ser un arreglo con al menos un elemento'
+    );
   } else if (
     !c.ejemplares.every(
-      (e) => Number.isInteger(e) && (e as number) > 0
+      (e) =>
+        Number.isInteger(e) &&
+        (e as number) > 0
     )
   ) {
-    errores.push('ejemplares solo admite numeros enteros positivos');
+    errores.push(
+      'ejemplares solo admite numeros enteros positivos'
+    );
   }
 
   if (errores.length > 0) {
     throw new ValidacionError(errores);
   }
 
-  return c as unknown as CrearPrestamoRequestDto;
+  return {
+    libroId: c.libroId as string,
+    socioId: c.socioId as string,
+    ejemplares: c.ejemplares as number[],
+  };
 }
