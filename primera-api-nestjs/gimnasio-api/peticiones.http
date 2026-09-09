@@ -1,0 +1,20 @@
+### Ruta raiz
+GET http://localhost:3000
+
+
+### Consultar clases
+GET http://localhost:3000/clases
+
+
+### Agregar una nueva clase
+POST http://localhost:3000/clases
+Content-Type: application/json
+
+{
+  "id": 3,
+  "nombre": "Pilates"
+}
+
+
+### Consultar nuevamente las clases
+GET http://localhost:3000/clases
