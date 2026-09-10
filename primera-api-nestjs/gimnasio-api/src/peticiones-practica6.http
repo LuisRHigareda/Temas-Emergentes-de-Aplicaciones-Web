@@ -1,0 +1,93 @@
+### 1. Consultar inscripciones inicialmente
+GET http://localhost:3000/inscripciones
+
+
+### 2. Crear primera inscripcion - debe responder 201
+POST http://localhost:3000/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": 1,
+  "miembroId": 1
+}
+
+
+### 3. Repetir el mismo miembro en el mismo horario - debe responder 409
+POST http://localhost:3000/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": 1,
+  "miembroId": 1
+}
+
+
+### 4. Crear segunda inscripcion - debe responder 201
+POST http://localhost:3000/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": 1,
+  "miembroId": 2
+}
+
+
+### 5. Tercera inscripcion en horario lleno - debe responder 409
+POST http://localhost:3000/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": 1,
+  "miembroId": 3
+}
+
+
+### 6. Consultar inscripciones
+GET http://localhost:3000/inscripciones
+
+
+### 7. Cancelar la primera inscripcion - debe liberar un lugar
+DELETE http://localhost:3000/inscripciones/1
+
+
+### 8. Volver a intentar la inscripcion que fallo por cupo - ahora debe responder 201
+POST http://localhost:3000/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": 1,
+  "miembroId": 3
+}
+
+
+### 9. Probar body incompleto - debe responder 400
+POST http://localhost:3000/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": 1
+}
+
+
+### 10. Probar horario inexistente - debe responder 404
+POST http://localhost:3000/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": 999,
+  "miembroId": 1
+}
+
+
+### 11. Probar miembro inexistente - debe responder 404
+POST http://localhost:3000/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": 2,
+  "miembroId": 999
+}
+
+
+### 12. Consultar estado final
+GET http://localhost:3000/inscripciones

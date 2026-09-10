@@ -6,11 +6,6 @@ interface Clase {
   nombre: string;
 }
 
-const clases: Clase[] = [
-  { id: 1, nombre: 'Yoga' },
-  { id: 2, nombre: 'spinning' }
-];
-
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -20,15 +15,4 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('clases')
-  listar(): Clase[] {
-    return clases;
-  }
-
-  @Post('clases')
-  crear(@Body() cuerpo: { nombre: string }): Clase {
-    const nueva: Clase = { id: clases.length + 1, nombre: cuerpo.nombre };
-    clases.push(nueva);
-    return nueva;
-  }
 }
