@@ -1,27 +1,23 @@
-# Práctica 6 - Conectar el dominio con la API
+# Práctica 7 - Módulo Miembros
 
 ## Preguntas de reflexión
 
-### 1. ¿Qué pasaría si el módulo no quedara registrado en la raíz?
+### 1. ¿Por qué esta interfaz no menciona Express, NestJS ni memoria?
 
-Si el módulo no estuviera agregado en `AppModule`, Nest no sabría que existe. Entonces sus controladores y servicios no se cargarían y las rutas de ese módulo no funcionarían.
+Porque la interfaz solo dice qué funciones debe tener el repositorio. No importa todavía si los datos se guardan en memoria o después en una base de datos.
 
-### 2. ¿Por qué los métodos del repositorio devuelven promesas si los datos van a estar en memoria?
+### 2. ¿Qué palabra de esa clase es la que promete cumplir la interfaz del paso anterior?
 
-Aunque en esta práctica los datos están en memoria, usar promesas permite que el código quede preparado para trabajar después con una base de datos. Así el Service no tendría que cambiar demasiado si el repositorio se reemplaza por otra implementación.
+La palabra es `implements`, porque con eso la clase indica que va a cumplir con los métodos que tiene `MiembroRepository`.
 
-### 3. ¿Qué error apareció al cambiar a la interfaz, y por qué la clase sí se había resuelto sola?
+### 3. ¿Por qué este archivo no sabe qué es una petición HTTP?
 
-Al cambiar la clase concreta por la interfaz, Nest mostró un error diciendo que no podía resolver la dependencia de `InscripcionesService`. Esto pasa porque la interfaz solo existe en TypeScript y ya no está disponible cuando la aplicación se ejecuta. En cambio, una clase sí existe en tiempo de ejecución y Nest puede identificarla directamente.
+Porque el Service no se encarga de recibir peticiones. Solo trabaja con los datos y llama al repositorio. Esa parte de las peticiones la maneja el Controller.
 
-### 4. ¿Por qué el servicio necesita un token para el repositorio, pero el controlador no lo necesita para el servicio?
+### 4. ¿Por qué el Service se inyecta sin token en el Controller, y el repositorio sí necesita uno?
 
-El repositorio se inyecta usando una interfaz, así que Nest necesita un token para saber qué clase concreta debe usar. El controlador no necesita eso para el Service porque `InscripcionesService` sí es una clase real y Nest puede reconocerla directamente.
+Porque `MiembrosService` es una clase y Nest la puede reconocer directamente. En cambio, `MiembroRepository` es una interfaz y por eso necesita un token para saber qué implementación utilizar.
 
-### 5. ¿Cuál es la diferencia entre un 400 y un 409?
+### 5. ¿Qué prueba, en los hechos, que agregar Miembros no rompió nada de Inscripciones?
 
-El 400 aparece cuando la petición está mal formada o le faltan datos necesarios. El 409 aparece cuando la petición sí está bien escrita, pero entra en conflicto con una regla del sistema, por ejemplo intentar inscribir dos veces al mismo miembro o querer entrar a un horario que ya está lleno.
-
-### 6. ¿Por qué cambió el código de estado de esa última petición?
-
-Primero la inscripción del miembro 3 dio 409 porque el horario ya tenía ocupados sus dos lugares. Después cancelamos una inscripción y se liberó un espacio. Al volver a mandar la misma petición, ya había cupo y por eso sí se pudo crear la inscripción con un 201.
+Que después de agregar Miembros, las peticiones de Inscripciones siguieron funcionando igual que antes. Entonces agregar el nuevo módulo no afectó lo que ya estaba hecho.

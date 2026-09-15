@@ -1,0 +1,39 @@
+### 1. Listar todos los miembros
+GET http://localhost:3000/miembros
+
+
+### 2. Buscar un miembro por id
+GET http://localhost:3000/miembros/1
+
+
+### 3. Crear un miembro
+POST http://localhost:3000/miembros
+Content-Type: application/json
+
+{
+  "nombre": "Luis Rodriguez",
+  "correo": "luis@itson.mx",
+  "membresia": "premium"
+}
+
+
+### 4. Actualizar el miembro creado
+PATCH http://localhost:3000/miembros/4
+Content-Type: application/json
+
+{
+  "membresia": "plus",
+  "activo": false
+}
+
+
+### 5. Eliminar el miembro creado
+DELETE http://localhost:3000/miembros/4
+
+
+### 6. Confirmar lista final
+GET http://localhost:3000/miembros
+
+
+### 7. Comprobar que Inscripciones sigue funcionando
+GET http://localhost:3000/inscripciones
