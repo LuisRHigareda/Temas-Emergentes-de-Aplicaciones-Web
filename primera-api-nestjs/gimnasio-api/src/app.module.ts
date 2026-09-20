@@ -5,6 +5,7 @@ import { AppService } from './app.service.js';
 import { ClasesModule } from './clases/clases.module.js';
 import { InscripcionesModule } from './inscripciones/inscripciones.module.js';
 import { MiembrosModule } from './miembros/miembros.module.js';
+import { HorariosModule } from './horarios/horarios.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -13,6 +14,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     ClasesModule,
     InscripcionesModule,
     MiembrosModule,
+    HorariosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

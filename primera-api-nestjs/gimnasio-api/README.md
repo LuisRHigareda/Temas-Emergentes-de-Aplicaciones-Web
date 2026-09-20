@@ -1,23 +1,11 @@
-# Práctica 7 - Módulo Miembros
+## Asignación - Módulo Horarios
 
-## Preguntas de reflexión
+### 1. ¿Por qué el Service se inyecta sin token en el Controller, y el repositorio sí necesita uno?
 
-### 1. ¿Por qué esta interfaz no menciona Express, NestJS ni memoria?
+Porque `HorariosService` es una clase y Nest puede reconocerla directamente. En cambio, `HorarioRepository` es una interfaz y necesita el token `HORARIO_REPOSITORY` para saber qué implementación debe usar.
 
-Porque la interfaz solo dice qué funciones debe tener el repositorio. No importa todavía si los datos se guardan en memoria o después en una base de datos.
+### 2. Si mandas un claseId que no es número, ¿qué código de estado esperarías, y por qué este Controller no lo detecta?
 
-### 2. ¿Qué palabra de esa clase es la que promete cumplir la interfaz del paso anterior?
+Lo esperado sería un 400 porque el dato enviado no es válido. En este Controller no se detecta porque el tipo de TypeScript solo sirve mientras se desarrolla y no valida automáticamente los datos que llegan en la petición.
 
-La palabra es `implements`, porque con eso la clase indica que va a cumplir con los métodos que tiene `MiembroRepository`.
-
-### 3. ¿Por qué este archivo no sabe qué es una petición HTTP?
-
-Porque el Service no se encarga de recibir peticiones. Solo trabaja con los datos y llama al repositorio. Esa parte de las peticiones la maneja el Controller.
-
-### 4. ¿Por qué el Service se inyecta sin token en el Controller, y el repositorio sí necesita uno?
-
-Porque `MiembrosService` es una clase y Nest la puede reconocer directamente. En cambio, `MiembroRepository` es una interfaz y por eso necesita un token para saber qué implementación utilizar.
-
-### 5. ¿Qué prueba, en los hechos, que agregar Miembros no rompió nada de Inscripciones?
-
-Que después de agregar Miembros, las peticiones de Inscripciones siguieron funcionando igual que antes. Entonces agregar el nuevo módulo no afectó lo que ya estaba hecho.
+claseId: number no valida el JSON en tiempo de ejecución

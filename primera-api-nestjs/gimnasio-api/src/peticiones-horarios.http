@@ -1,0 +1,33 @@
+### 1. Crear un horario
+POST http://localhost:3000/horarios
+Content-Type: application/json
+
+{
+  "claseId": 2,
+  "dia": "jueves",
+  "horaInicio": "18:00",
+  "cupoMaximo": 5,
+  "entrenador": "Carlos Lopez"
+}
+
+
+### 2. Listar horarios
+GET http://localhost:3000/horarios
+
+
+### 3. Buscar horario por id
+GET http://localhost:3000/horarios/4
+
+
+### 4. Actualizar horario
+PATCH http://localhost:3000/horarios/4
+Content-Type: application/json
+
+{
+  "horaInicio": "19:00",
+  "cupoMaximo": 6
+}
+
+
+### 5. Eliminar horario
+DELETE http://localhost:3000/horarios/4
