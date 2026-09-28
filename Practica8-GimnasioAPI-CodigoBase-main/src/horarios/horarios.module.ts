@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { HorariosController } from './horarios.controller';
-import { HorariosService } from './horarios.service';
-import { HorarioMemoriaRepository } from './infra/horario-memoria.repository';
-import { HORARIO_REPOSITORY } from './horarios.tokens';
+
+import { HorariosController } from './horarios.controller.js';
+import { HorariosService } from './horarios.service.js';
+import { HORARIO_REPOSITORY } from './horarios.tokens.js';
+import { HorarioPrismaRepository } from './infra/horario-prisma.repository.js';
 
 @Module({
   controllers: [HorariosController],
@@ -10,10 +11,7 @@ import { HORARIO_REPOSITORY } from './horarios.tokens';
     HorariosService,
     {
       provide: HORARIO_REPOSITORY,
-      useClass: HorarioMemoriaRepository,
-      //         ^^^^^^^^^^^^^^^^^^^^^^^^
-      // Practica 8 (Prisma): esta linea pasa a HorarioPrismaRepository.
-      // Ni el Service ni el Controller se enteran.
+      useClass: HorarioPrismaRepository,
     },
   ],
   exports: [HorariosService],

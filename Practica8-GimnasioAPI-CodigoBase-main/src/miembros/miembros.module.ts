@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { MiembrosController } from './miembros.controller';
-import { MiembrosService } from './miembros.service';
-import { MiembroMemoriaRepository } from './infra/miembro-memoria.repository';
-import { MIEMBRO_REPOSITORY } from './miembros.tokens';
+
+import { MiembrosController } from './miembros.controller.js';
+import { MiembrosService } from './miembros.service.js';
+import { MIEMBRO_REPOSITORY } from './miembros.tokens.js';
+import { MiembroPrismaRepository } from './infra/miembro-prisma.repository.js';
 
 @Module({
   controllers: [MiembrosController],
@@ -10,12 +11,9 @@ import { MIEMBRO_REPOSITORY } from './miembros.tokens';
     MiembrosService,
     {
       provide: MIEMBRO_REPOSITORY,
-      useClass: MiembroMemoriaRepository,
-      //         ^^^^^^^^^^^^^^^^^^^^^^^^
-      // Practica 8 (Prisma): esta linea pasa a MiembroPrismaRepository.
-      // Ni el Service ni el Controller se enteran.
+      useClass: MiembroPrismaRepository,
     },
   ],
   exports: [MiembrosService],
 })
-export class MiembrosModule {}
+export class MiembrosModule { }

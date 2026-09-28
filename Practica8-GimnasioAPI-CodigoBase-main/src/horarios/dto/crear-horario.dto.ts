@@ -1,9 +1,25 @@
-// Validacion minima a mano. En la Sesion 9 (Blindar la API) la hace
-// ValidationPipe.
-export interface CrearHorarioDto {
-  claseId: number;
-  dia: string;
-  horaInicio: string;
-  cupoMaximo: number;
-  entrenador: string;
+import {
+  IsInt,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
+
+export class CrearHorarioDto {
+  @IsInt()
+  claseId!: number;
+
+  @IsString()
+  @IsNotEmpty()
+  dia!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  horaInicio!: string;
+
+  @IsInt()
+  cupoMaximo!: number;
+
+  @IsString()
+  @IsNotEmpty()
+  entrenador!: string;
 }

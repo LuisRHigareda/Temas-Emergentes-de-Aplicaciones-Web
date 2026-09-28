@@ -1,0 +1,176 @@
+@host = http://localhost:3000
+
+############################################
+# VALIDACION
+############################################
+
+### 1. Tipo incorrecto -> 400
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": "hola",
+  "miembroId": 1
+}
+
+
+### 2. Campo no permitido -> 400
+POST {{host}}/miembros
+Content-Type: application/json
+
+{
+  "nombre": "Usuario Prueba",
+  "correo": "prueba@itson.mx",
+  "membresia": "basica",
+  "campoInventado": "no deberia existir"
+}
+
+
+############################################
+# PREPARAR DATOS EN MYSQL
+############################################
+
+### 3. Crear clase
+# @name crearClase
+POST {{host}}/clases
+Content-Type: application/json
+
+{
+  "nombre": "Yoga Practica 9",
+  "duracionMin": 60,
+  "descripcion": "Clase utilizada para las pruebas"
+}
+
+
+### 4. Crear miembro 1
+# @name crearMiembro1
+POST {{host}}/miembros
+Content-Type: application/json
+
+{
+  "nombre": "Luis Prueba",
+  "correo": "practica9-miembro1@itson.mx",
+  "membresia": "basica"
+}
+
+
+### 5. Crear miembro 2
+# @name crearMiembro2
+POST {{host}}/miembros
+Content-Type: application/json
+
+{
+  "nombre": "Ana Prueba",
+  "correo": "practica9-miembro2@itson.mx",
+  "membresia": "basica"
+}
+
+
+### 6. Crear miembro 3
+# @name crearMiembro3
+POST {{host}}/miembros
+Content-Type: application/json
+
+{
+  "nombre": "Carlos Prueba",
+  "correo": "practica9-miembro3@itson.mx",
+  "membresia": "basica"
+}
+
+
+### 7. Crear horario con cupo de 2
+# @name crearHorario
+POST {{host}}/horarios
+Content-Type: application/json
+
+{
+  "claseId": {{crearClase.response.body.$.id}},
+  "dia": "lunes",
+  "horaInicio": "18:00",
+  "cupoMaximo": 2,
+  "entrenador": "Entrenador Prueba"
+}
+
+
+############################################
+# INSCRIPCIONES
+############################################
+
+### 8. Primera inscripcion -> 201
+# @name inscripcion1
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": {{crearHorario.response.body.$.id}},
+  "miembroId": {{crearMiembro1.response.body.$.id}}
+}
+
+
+### 9. Repetir mismo miembro -> 409 duplicado
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": {{crearHorario.response.body.$.id}},
+  "miembroId": {{crearMiembro1.response.body.$.id}}
+}
+
+
+### 10. Segunda inscripcion -> 201
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": {{crearHorario.response.body.$.id}},
+  "miembroId": {{crearMiembro2.response.body.$.id}}
+}
+
+
+### 11. Tercera inscripcion -> 409 cupo lleno
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{
+  "horarioId": {{crearHorario.response.body.$.id}},
+  "miembroId": {{crearMiembro3.response.body.$.id}}
+}
+
+
+############################################
+# COMPROBAR MYSQL
+############################################
+
+### 12. Clases
+GET {{host}}/clases
+
+
+### 13. Miembros
+GET {{host}}/miembros
+
+
+### 14. Horarios
+GET {{host}}/horarios
+
+
+### 15. Inscripciones
+GET {{host}}/inscripciones
+
+
+############################################
+# CORS
+############################################
+
+### 16. Origen permitido localhost
+GET {{host}}/clases
+Origin: http://localhost:5173
+
+
+### 17. Segundo origen permitido
+GET {{host}}/clases
+Origin: http://127.0.0.1:5173
+
+
+### 18. Origen NO permitido
+GET {{host}}/clases
+Origin: http://ejemplo-no-permitido.test

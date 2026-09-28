@@ -1,5 +1,19 @@
-// Validacion minima a mano. En la Sesion 9 (Blindar la API) la hace
-// ValidationPipe.
-export interface CrearClaseDto {
-  nombre: string;
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+
+export class CrearClaseDto {
+  @IsString()
+  @IsNotEmpty()
+  nombre!: string;
+
+  @IsInt()
+  duracionMin!: number;
+
+  @IsOptional()
+  @IsString()
+  descripcion?: string | null;
 }

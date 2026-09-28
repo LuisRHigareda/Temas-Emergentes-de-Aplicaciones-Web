@@ -1,31 +1,26 @@
-# Gimnasio API — Código base (Semana 5)
 
-API REST en NestJS para el gimnasio: `Clases`, `Horarios`, `Miembros` e `Inscripciones`, cada
-módulo con dominio, DTOs e infraestructura separados (patrón repositorio + inyección por token).
-Los datos viven en memoria — ningún repositorio se conecta todavía a una base de datos real.
+## Preguntas de reflexión
 
-Este proyecto es el punto de partida de la Práctica 8 (Prisma) y la Práctica 9 (Blindar la API).
+### 1. ¿Qué línea del Service o del Controller tuvo que cambiar para que Clases hablara con MySQL?
 
-## Cómo correrlo
+No fue necesario cambiar ninguna línea del Service ni del Controller. El cambio se hizo en el módulo, sustituyendo `ClaseMemoriaRepository` por `ClasePrismaRepository`.
 
-```bash
-npm install
-npm run start:dev
-```
+### 2. ¿Por qué InscripcionesService no tuvo que cambiar ni una línea de las reglas de cupo y duplicados?
 
-El servidor levanta en `http://localhost:3000`. En `peticiones.http` está la batería completa de
-pruebas (requiere la extensión "REST Client" de VS Code).
+Porque el Service trabaja con la interfaz `InscripcionRepository` y no con una implementación específica. El repositorio cambió de memoria a Prisma, pero los métodos que utiliza el Service siguen siendo los mismos.
 
-## Estructura
+### 3. ¿Por qué una interfaz no puede validar nada en tiempo de ejecución?
 
-```
-src/
-  clases/        CRUD de clases del gimnasio
-  horarios/      CRUD de horarios (día, hora, cupo, entrenador)
-  miembros/      CRUD de miembros del gimnasio
-  inscripciones/ inscribir a un miembro a un horario, con reglas de cupo y duplicados
-  datos/         datos de arranque (seed) que usan Horarios y Miembros
-```
+Porque las interfaces de TypeScript solamente se utilizan durante la compilación y desaparecen cuando el código se convierte a JavaScript. Una clase sí existe durante la ejecución y por eso puede utilizar los decoradores de `class-validator`.
 
-Cada módulo sigue la misma forma: `dominio/` (entidades + interfaz del repositorio), `dto/`,
-`infra/` (repositorio en memoria) y el token de inyección en `<módulo>.tokens.ts`.
+### 4. ¿Qué código de estado responde la validación y qué trae en el cuerpo?
+
+Cuando los datos no cumplen con el DTO la API responde con código `400 Bad Request`. En el cuerpo aparecen los mensajes de validación, además de `error` y `statusCode`.
+
+### 5. ¿Cuántas líneas quedó más corto el controlador?
+
+El controlador quedó 25 líneas más corto. Antes tenía 75 líneas y después de mover el manejo de errores al filtro quedó con 50.
+
+### 6. Si la respuesta llega con los dos orígenes, ¿quién bloquea realmente y a quién protege?
+
+El que aplica CORS es el navegador. REST Client puede recibir la respuesta aunque el origen no esté permitido, pero un navegador evita que el código de una página de otro origen pueda leerla. CORS protege principalmente al usuario que está utilizando el navegador.
