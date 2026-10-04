@@ -1,9 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { Publico } from './auth/decoradores/publico.decorator.js';
 
+@Publico()
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {} // Nest arma AppService y lo entrega ya listo aquí
+  constructor(private readonly appService: AppService) { } // Nest arma AppService y lo entrega ya listo aquí
 
   @Get()
   getHello(): string {

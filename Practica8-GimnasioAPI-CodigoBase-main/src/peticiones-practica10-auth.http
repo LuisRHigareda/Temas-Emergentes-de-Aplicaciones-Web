@@ -1,0 +1,72 @@
+@host = http://localhost:3000
+
+
+############################################
+# PRACTICA 10 - AUTH
+############################################
+
+
+### 1. Login correcto - Karla
+# @name loginKarla
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "karla@itson.mx",
+  "password": "gimnasio2026"
+}
+
+
+### 2. Login correcto - entrenador
+# @name loginAna
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "ana@itson.mx",
+  "password": "gimnasio2026"
+}
+
+
+### 3. Login correcto - administrador
+# @name loginAdmin
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@itson.mx",
+  "password": "gimnasio2026"
+}
+
+
+### 4. Password incorrecto -> 401
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "karla@itson.mx",
+  "password": "incorrecta"
+}
+
+
+### 5. Correo inexistente -> mismo 401
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "nadie@itson.mx",
+  "password": "gimnasio2026"
+}
+
+
+### 6. Registrar una cuenta nueva
+# @name registro
+POST {{host}}/auth/registro
+Content-Type: application/json
+
+{
+  "correo": "nuevo@itson.mx",
+  "password": "prueba2026",
+  "rol": "miembro",
+  "miembroId": 2
+}

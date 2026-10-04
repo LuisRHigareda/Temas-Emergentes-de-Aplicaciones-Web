@@ -1,14 +1,48 @@
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import 'dotenv/config';
 
-import { AppModule } from './app.module.js';
-import { ErrorDominioFilter } from './comun/filtros/error-dominio.filter.js';
-import { peticionIdMiddleware } from './comun/middleware/peticion-id.middleware.js';
+import {
+  ValidationPipe,
+} from '@nestjs/common';
+
+import {
+  NestFactory,
+  Reflector,
+} from '@nestjs/core';
+
+import {
+  DocumentBuilder,
+  SwaggerModule,
+} from '@nestjs/swagger';
+
+import {
+  AppModule,
+} from './app.module.js';
+
+import {
+  DominioExceptionFilter,
+} from './comun/filtros/dominio.filter.js';
+
+import {
+  LoggingInterceptor,
+} from './comun/interceptores/logging.interceptor.js';
+
+import {
+  SobreInterceptor,
+} from './comun/interceptores/sobre.interceptor.js';
+
+import {
+  JwtAuthGuard,
+} from './auth/guards/jwt-auth.guard.js';
+
+import {
+  RolesGuard,
+} from './auth/guards/roles.guard.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  app.use(peticionIdMiddleware);
+  const app =
+    await NestFactory.create(
+      AppModule,
+    );
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -21,18 +55,26 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new ErrorDominioFilter());
+  app.useGlobalFilters(
+    new DominioExceptionFilter(),
+  );
+
+  app.useGlobalInterceptors(
+    new LoggingInterceptor(),
+    new SobreInterceptor(),
+  );
+
+  const reflector =
+    app.get(Reflector);
+
+  app.useGlobalGuards(
+    new JwtAuthGuard(reflector),
+    new RolesGuard(reflector),
+  );
 
   app.enableCors({
     origin: [
       'http://localhost:5173',
-      'http://127.0.0.1:5173',
-    ],
-    methods: [
-      'GET',
-      'POST',
-      'PATCH',
-      'DELETE',
     ],
     exposedHeaders: [
       'Location',
@@ -40,7 +82,33 @@ async function bootstrap() {
     ],
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  const config =
+    new DocumentBuilder()
+      .setTitle(
+        'API del Gimnasio',
+      )
+      .setVersion('1.0')
+      .addBearerAuth()
+      .addSecurityRequirements(
+        'bearer',
+      )
+      .build();
+
+  const documento =
+    SwaggerModule.createDocument(
+      app,
+      config,
+    );
+
+  SwaggerModule.setup(
+    'docs',
+    app,
+    documento,
+  );
+
+  await app.listen(
+    process.env.PORT ?? 3000,
+  );
 }
 
 bootstrap();

@@ -1,0 +1,197 @@
+@host = http://localhost:3000
+
+
+############################################
+# 1. LOGIN ADMIN
+############################################
+
+### Login admin
+# @name loginAdmin
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@itson.mx",
+  "password": "gimnasio2026"
+}
+
+
+############################################
+# 2. LOGIN KARLA
+############################################
+
+### Login Karla
+# @name loginKarla
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "karla@itson.mx",
+  "password": "gimnasio2026"
+}
+
+
+############################################
+# 3. LOGIN ANA
+############################################
+
+### Login Ana
+# @name loginAna
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "ana@itson.mx",
+  "password": "gimnasio2026"
+}
+
+
+############################################
+# 4. GET CLASES - SOBRE + REQUEST ID + LOGGING
+############################################
+
+### GET clases
+GET {{host}}/clases
+
+
+############################################
+# 5. CORS PERMITIDO
+############################################
+
+### CORS permitido
+GET {{host}}/clases
+Origin: http://localhost:5173
+
+
+############################################
+# 6. CORS NO PERMITIDO
+############################################
+
+### CORS no permitido
+GET {{host}}/clases
+Origin: http://localhost:4000
+
+
+############################################
+# 7. SIN TOKEN -> 401
+############################################
+
+### Inscripciones sin token
+GET {{host}}/inscripciones
+
+
+############################################
+# 8. AUTH YO -> 200
+############################################
+
+### Datos de Karla
+GET {{host}}/auth/yo
+Authorization: Bearer {{loginKarla.response.body.$.data.access_token}}
+
+
+############################################
+# 9. CREAR CLASE PARA CONFLICTO
+############################################
+
+### Crear clase
+# @name crearClaseEvidencia
+POST {{host}}/clases
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+Content-Type: application/json
+
+{
+  "nombre": "Evidencia Practica 10",
+  "duracionMin": 60,
+  "descripcion": "Clase para probar conflictos"
+}
+
+
+############################################
+# 10. CREAR HORARIO CUPO 1
+############################################
+
+### Crear horario
+# @name crearHorarioEvidencia
+POST {{host}}/horarios
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+Content-Type: application/json
+
+{
+  "claseId": {{crearClaseEvidencia.response.body.$.data.id}},
+  "dia": "sabado",
+  "horaInicio": "10:00",
+  "cupoMaximo": 1,
+  "entrenador": "Ana"
+}
+
+
+############################################
+# 11. PRIMERA INSCRIPCION -> 201
+############################################
+
+### Primera inscripción
+# @name primeraInscripcion
+POST {{host}}/inscripciones
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+Content-Type: application/json
+
+{
+  "horarioId": {{crearHorarioEvidencia.response.body.$.data.id}},
+  "miembroId": 1
+}
+
+
+############################################
+# 12. SEGUNDA INSCRIPCION -> 409 CUPO LLENO
+############################################
+
+### Cupo lleno
+POST {{host}}/inscripciones
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+Content-Type: application/json
+
+{
+  "horarioId": {{crearHorarioEvidencia.response.body.$.data.id}},
+  "miembroId": 3
+}
+
+
+############################################
+# 13. KARLA INTENTA INSCRIBIR A OTRO -> 403
+############################################
+
+### Karla intenta inscribir miembro 3
+POST {{host}}/inscripciones
+Authorization: Bearer {{loginKarla.response.body.$.data.access_token}}
+Content-Type: application/json
+
+{
+  "horarioId": {{crearHorarioEvidencia.response.body.$.data.id}},
+  "miembroId": 3
+}
+
+
+############################################
+# 14. CANCELAR SIN TOKEN -> 401
+############################################
+
+### Cancelar sin token
+DELETE {{host}}/inscripciones/{{primeraInscripcion.response.body.$.data.id}}
+
+
+############################################
+# 15. CANCELAR COMO KARLA -> 403
+############################################
+
+### Cancelar como miembro
+DELETE {{host}}/inscripciones/{{primeraInscripcion.response.body.$.data.id}}
+Authorization: Bearer {{loginKarla.response.body.$.data.access_token}}
+
+
+############################################
+# 16. CANCELAR COMO ENTRENADOR -> 200
+############################################
+
+### Cancelar como entrenador
+DELETE {{host}}/inscripciones/{{primeraInscripcion.response.body.$.data.id}}
+Authorization: Bearer {{loginAna.response.body.$.data.access_token}}
