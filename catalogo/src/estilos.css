@@ -107,3 +107,9 @@ p {
         padding: 20px 16px;
     }
 }
+
+/* Alertas de la asignación */
+.alertas-ejemplos {
+    display: grid;
+    gap: 12px;
+}

@@ -1,0 +1,39 @@
+/* Contenedor de la tabla */
+:host {
+    display: block;
+    width: 100%;
+}
+
+.contenedor {
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid var(--color-linea, #e5e7eb);
+    border-radius: var(--radio, 12px);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-linea, #e5e7eb);
+}
+
+th {
+    color: var(--color-tinta, #111827);
+    background: #f9fafb;
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.sin-datos {
+    text-align: center;
+    color: var(--color-tenue, #6b7280);
+    padding: 24px;
+}
