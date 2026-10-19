@@ -2,10 +2,6 @@ import {
   useState,
 } from 'react';
 
-import {
-  productos,
-} from './datos';
-
 import type {
   Producto,
 } from './datos';
@@ -34,26 +30,42 @@ import {
   Catalogo,
 } from './componentes/Catalogo';
 
+import {
+  Cargando,
+} from './componentes/Cargando';
+
+import {
+  MensajeError,
+} from './componentes/MensajeError';
+
+import {
+  FormularioPago,
+} from './componentes/FormularioPago';
+
+import {
+  useProductos,
+} from './hooks/useProductos';
+
 
 function App() {
-
-  // Guardamos únicamente las cosas que cambian.
   const [
     filtro,
     setFiltro,
-  ] = useState<Categoria>(
-    'todas',
-  );
+  ] = useState<Categoria>('todas');
 
   const [
     carrito,
     setCarrito,
-  ] = useState<Producto[]>(
-    [],
-  );
+  ] = useState<Producto[]>([]);
 
+  const {
+    productos,
+    cargando,
+    error,
+    reintentar,
+    recargar,
+  } = useProductos();
 
-  // Agregamos creando un arreglo nuevo.
   function agregarAlCarrito(
     producto: Producto,
   ) {
@@ -65,9 +77,11 @@ function App() {
     );
   }
 
+  async function pedidoConfirmado() {
+    setCarrito([]);
+    await recargar();
+  }
 
-  // Esto se calcula en cada render.
-  // No necesitamos otro useState.
   const productosFiltrados =
     filtro === 'todas'
       ? productos
@@ -76,13 +90,8 @@ function App() {
           producto.categoria === filtro,
       );
 
+  const piezas = carrito.length;
 
-  // Cantidad total de piezas.
-  const piezas =
-    carrito.length;
-
-
-  // El total también se calcula.
   const total =
     carrito.reduce(
       (suma, producto) =>
@@ -90,15 +99,11 @@ function App() {
       0,
     );
 
-
   return (
     <Layout
       encabezado={
-        <Encabezado
-          piezas={piezas}
-        />
+        <Encabezado piezas={piezas} />
       }
-
       pie={
         <PiePagina
           piezas={piezas}
@@ -107,9 +112,7 @@ function App() {
       }>
 
       <section className="portada">
-        <h1>
-          Catálogo de temporada
-        </h1>
+        <h1>Catálogo de temporada</h1>
 
         <p>
           {productosFiltrados.length}
@@ -118,21 +121,35 @@ function App() {
         </p>
       </section>
 
+      {
+        cargando
+          ? <Cargando />
+          : error
+            ? (
+              <MensajeError
+                mensaje={error}
+                onReintentar={reintentar}
+              />
+            )
+            : (
+              <>
+                <Filtros
+                  activa={filtro}
+                  onCambiar={setFiltro}
+                />
 
-      <Filtros
-        activa={filtro}
-        onCambiar={setFiltro}
-      />
+                <Catalogo
+                  productos={productosFiltrados}
+                  onAgregar={agregarAlCarrito}
+                />
 
-
-      <Catalogo
-        productos={
-          productosFiltrados
-        }
-        onAgregar={
-          agregarAlCarrito
-        }
-      />
+                <FormularioPago
+                  carrito={carrito}
+                  onConfirmado={pedidoConfirmado}
+                />
+              </>
+            )
+      }
 
     </Layout>
   );
