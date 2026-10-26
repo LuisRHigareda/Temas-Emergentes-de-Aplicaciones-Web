@@ -1,54 +1,40 @@
-# Práctica 15 - Gimnasio
-
-En esta práctica trabajé con React Router para separar las diferentes páginas del gimnasio.
-
-Se agregó una página para ver las clases, otra para ver el detalle de cada clase y sus horarios, además de una página 404 para las rutas que no existen. Los datos se obtienen desde el backend del gimnasio.
-
-## Rutas
-
-Las rutas que se utilizaron son:
-
-- `/` redirige a `/clases`
-- `/clases` muestra todas las clases
-- `/clases/:id` muestra la información de una clase
-- cualquier otra ruta muestra el error 404
-
-El encabezado y el pie se encuentran dentro del Layout, así que se siguen mostrando al cambiar de página.
+# Práctica 16 - Sesión con JWT
+En esta práctica se agregó el inicio de sesión al proyecto del gimnasio usando React Context y JWT.
+La sesión se guarda en `localStorage` para que no se pierda al recargar la página. También se agregó el registro de usuarios y un interceptor de Axios para enviar el token al backend.
 
 ## Ejercicio 1
-
-### ¿Por qué el 404 sí tiene encabezado y pie?
-
-Porque la página 404 también se encuentra dentro del Layout. Lo que cambia es el contenido que se muestra en medio, pero el encabezado y el pie siguen siendo los mismos.
-
-### ¿Qué cambia en la pestaña Red si usas `<a href>` en lugar de `Link`?
-
-Con `Link` se cambia de ruta sin volver a cargar toda la página.
-
-Al cambiarlo temporalmente por `<a href>` pude ver en la pestaña Red que el navegador vuelve a pedir el documento y varios archivos de la aplicación. Esto pasa porque hace una navegación completa.
+### ¿Por qué se usa un contexto y no props para la sesión?
+Porque la información de la sesión se usa en diferentes partes de la aplicación. Con el contexto no es necesario estar pasando el usuario y el token por varios componentes mediante props.
+### ¿Qué pasa si un componente usa la sesión fuera del proveedor?
+No tendría acceso a la información del contexto. En este caso el hook marca un error porque la sesión debe usarse dentro de `SesionProvider`.
 
 ## Ejercicio 2
+Se agregó una página para iniciar sesión y otra para registrar una cuenta nueva.
+Cuando el login es correcto, el backend devuelve un token JWT y los datos del usuario. Si las credenciales son incorrectas se muestra el mensaje que devuelve la API.
+También se agregó un interceptor de Axios que manda el token de esta forma:
 
-### ¿En qué tipo de dato llega el id de la URL y qué pasa si no lo conviertes?
+```text
+Authorization: Bearer TOKEN
+```
 
-El id que se obtiene con `useParams` llega como `string`.
+### ¿Dónde se guarda el token y qué riesgo tiene ese lugar?
+El token se guarda en `localStorage`.
+La ventaja es que la sesión continúa aunque se recargue la página. El riesgo es que, si algún código malicioso logra ejecutarse en la aplicación, podría leer la información guardada en `localStorage`.
 
-En este caso se convierte a número antes de utilizarlo porque el servicio espera un id numérico. Si no se convierte, TypeScript marca que los tipos no coinciden.
+## Ejecutar el proyecto
 
-### ¿Qué pasa al ir de `/clases/1` a `/clases/2` si el id no está en las dependencias del efecto?
-
-El efecto no detectaría el cambio del id y podría seguir mostrando la información de la clase anterior aunque la URL ya haya cambiado.
-
-Por eso el id se coloca en las dependencias del efecto.
-
-## Ejecución
-
-Primero se debe iniciar el backend:
+Backend:
 
 ```bash
 cd backend
-npm install
 npx prisma generate
-npx prisma migrate dev
 npx prisma db seed
 npm run start:dev
+```
+
+Frontend:
+
+```bash
+npm install
+npm run dev
+```

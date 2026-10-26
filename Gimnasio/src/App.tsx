@@ -3,6 +3,8 @@ import { Layout } from './componentes/Layout.tsx';
 import { NoEncontrado } from './componentes/NoEncontrado.tsx';
 import { PaginaClase } from './paginas/PaginaClase.tsx';
 import { PaginaClases } from './paginas/PaginaClases.tsx';
+import PaginaEntrar from './paginas/PaginaEntrar.tsx';
+import PaginaRegistro from './paginas/PaginaRegistro.tsx';
 
 function App() {
   return (
@@ -14,6 +16,9 @@ function App() {
           <Route index element={<PaginaClases />} />
           <Route path=":id" element={<PaginaClase />} />
         </Route>
+
+        <Route path="entrar" element={<PaginaEntrar />} />
+        <Route path="registro" element={<PaginaRegistro />} />
 
         <Route path="*" element={<NoEncontrado />} />
       </Route>
