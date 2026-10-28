@@ -1,9 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router';
 import { Layout } from './componentes/Layout.tsx';
 import { NoEncontrado } from './componentes/NoEncontrado.tsx';
+import { RutaProtegida } from './componentes/RutaProtegida.tsx';
 import { PaginaClase } from './paginas/PaginaClase.tsx';
 import { PaginaClases } from './paginas/PaginaClases.tsx';
 import PaginaEntrar from './paginas/PaginaEntrar.tsx';
+import { PaginaMisInscripciones } from './paginas/PaginaMisInscripciones.tsx';
 import PaginaRegistro from './paginas/PaginaRegistro.tsx';
 
 function App() {
@@ -15,6 +17,10 @@ function App() {
         <Route path="clases">
           <Route index element={<PaginaClases />} />
           <Route path=":id" element={<PaginaClase />} />
+        </Route>
+
+        <Route element={<RutaProtegida />}>
+          <Route path="mis-inscripciones" element={<PaginaMisInscripciones />} />
         </Route>
 
         <Route path="entrar" element={<PaginaEntrar />} />

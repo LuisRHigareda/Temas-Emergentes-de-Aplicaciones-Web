@@ -1,6 +1,13 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 import type { Sesion } from '../tipos.ts';
 import { entrar as entrarApi, registrar as registrarApi } from '../servicios/sesion.ts';
+import { EVENTO_SESION_TERMINADA } from '../servicios/api.ts';
 
 const CLAVE_SESION = 'gimnasio.sesion';
 
@@ -27,6 +34,18 @@ function leerSesion(): Sesion | null {
 
 export function SesionProvider({ children }: { children: ReactNode }) {
   const [sesion, setSesion] = useState<Sesion | null>(leerSesion);
+
+  useEffect(() => {
+    function cerrarSesion() {
+      setSesion(null);
+    }
+
+    window.addEventListener(EVENTO_SESION_TERMINADA, cerrarSesion);
+
+    return () => {
+      window.removeEventListener(EVENTO_SESION_TERMINADA, cerrarSesion);
+    };
+  }, []);
 
   function guardar(nuevaSesion: Sesion) {
     localStorage.setItem(CLAVE_SESION, JSON.stringify(nuevaSesion));
