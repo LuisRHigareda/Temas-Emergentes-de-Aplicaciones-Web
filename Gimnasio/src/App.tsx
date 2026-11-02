@@ -1,12 +1,34 @@
+import { lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { Layout } from './componentes/Layout.tsx';
-import { NoEncontrado } from './componentes/NoEncontrado.tsx';
 import { RutaProtegida } from './componentes/RutaProtegida.tsx';
-import { PaginaClase } from './paginas/PaginaClase.tsx';
-import { PaginaClases } from './paginas/PaginaClases.tsx';
-import PaginaEntrar from './paginas/PaginaEntrar.tsx';
-import { PaginaMisInscripciones } from './paginas/PaginaMisInscripciones.tsx';
-import PaginaRegistro from './paginas/PaginaRegistro.tsx';
+
+const PaginaClases = lazy(() =>
+  import('./paginas/PaginaClases.tsx').then((modulo) => ({
+    default: modulo.PaginaClases,
+  })),
+);
+
+const PaginaClase = lazy(() =>
+  import('./paginas/PaginaClase.tsx').then((modulo) => ({
+    default: modulo.PaginaClase,
+  })),
+);
+
+const PaginaEntrar = lazy(() => import('./paginas/PaginaEntrar.tsx'));
+const PaginaRegistro = lazy(() => import('./paginas/PaginaRegistro.tsx'));
+
+const PaginaMisInscripciones = lazy(() =>
+  import('./paginas/PaginaMisInscripciones.tsx').then((modulo) => ({
+    default: modulo.PaginaMisInscripciones,
+  })),
+);
+
+const NoEncontrado = lazy(() =>
+  import('./componentes/NoEncontrado.tsx').then((modulo) => ({
+    default: modulo.NoEncontrado,
+  })),
+);
 
 function App() {
   return (
@@ -25,7 +47,6 @@ function App() {
 
         <Route path="entrar" element={<PaginaEntrar />} />
         <Route path="registro" element={<PaginaRegistro />} />
-
         <Route path="*" element={<NoEncontrado />} />
       </Route>
     </Routes>

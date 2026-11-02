@@ -6,6 +6,7 @@ import { useClase } from '../hooks/useClase.ts';
 import { useSesion } from '../sesion/SesionContext.tsx';
 import { inscribirse } from '../servicios/gimnasio.ts';
 import { mensajeDeError, urlImagen } from '../servicios/api.ts';
+import { useInscripcionesStore } from '../store/useInscripcionesStore.ts';
 
 export function PaginaClase() {
   const { id } = useParams();
@@ -14,6 +15,10 @@ export function PaginaClase() {
   const { sesion } = useSesion();
   const idClase = Number(id);
   const { clase, cargando, error, reintentar } = useClase(idClase);
+
+  const inscripciones = useInscripcionesStore((estado) => estado.inscripciones);
+  const cargarInscripciones = useInscripcionesStore((estado) => estado.cargar);
+
   const [aviso, setAviso] = useState<string | null>(null);
   const [errorInscripcion, setErrorInscripcion] = useState<string | null>(null);
   const [enviando, setEnviando] = useState<number | null>(null);
@@ -32,6 +37,7 @@ export function PaginaClase() {
 
     try {
       await inscribirse(horarioId);
+      await cargarInscripciones();
       setAviso('Inscripción realizada correctamente.');
       reintentar();
     } catch (e) {
@@ -77,31 +83,41 @@ export function PaginaClase() {
 
           <h2>Horarios</h2>
           <ul className="horarios">
-            {clase.horarios.map((horario) => (
-              <li className="horario" key={horario.id}>
-                <div>
-                  <div className="horario__dia">
-                    {horario.dia} · {horario.horaInicio}
-                  </div>
-                  <div className="horario__meta">
-                    {horario.entrenador} · {horario.disponibles} de{' '}
-                    {horario.cupoMaximo} lugares
-                  </div>
-                </div>
+            {clase.horarios.map((horario) => {
+              const inscrito = inscripciones.some(
+                (inscripcion) =>
+                  inscripcion.estado === 'confirmada' &&
+                  inscripcion.horario.id === horario.id,
+              );
 
-                {horario.disponibles === 0 ? (
-                  <span className="horario__lleno">Lleno</span>
-                ) : (
-                  <button
-                    className="boton boton--chico"
-                    disabled={enviando === horario.id}
-                    onClick={() => void inscribir(horario.id)}
-                  >
-                    {enviando === horario.id ? 'Inscribiendo…' : 'Inscribirme'}
-                  </button>
-                )}
-              </li>
-            ))}
+              return (
+                <li className="horario" key={horario.id}>
+                  <div>
+                    <div className="horario__dia">
+                      {horario.dia} · {horario.horaInicio}
+                    </div>
+                    <div className="horario__meta">
+                      {horario.entrenador} · {horario.disponibles} de{' '}
+                      {horario.cupoMaximo} lugares
+                    </div>
+                  </div>
+
+                  {inscrito ? (
+                    <span className="horario__inscrito">Inscrito</span>
+                  ) : horario.disponibles === 0 ? (
+                    <span className="horario__lleno">Lleno</span>
+                  ) : (
+                    <button
+                      className="boton boton--chico"
+                      disabled={enviando === horario.id}
+                      onClick={() => void inscribir(horario.id)}
+                    >
+                      {enviando === horario.id ? 'Inscribiendo…' : 'Inscribirme'}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </article>

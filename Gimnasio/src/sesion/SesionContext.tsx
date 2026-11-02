@@ -8,6 +8,7 @@ import {
 import type { Sesion } from '../tipos.ts';
 import { entrar as entrarApi, registrar as registrarApi } from '../servicios/sesion.ts';
 import { EVENTO_SESION_TERMINADA } from '../servicios/api.ts';
+import { useInscripcionesStore } from '../store/useInscripcionesStore.ts';
 
 const CLAVE_SESION = 'gimnasio.sesion';
 
@@ -36,7 +37,16 @@ export function SesionProvider({ children }: { children: ReactNode }) {
   const [sesion, setSesion] = useState<Sesion | null>(leerSesion);
 
   useEffect(() => {
+    if (sesion) {
+      void useInscripcionesStore.getState().cargar();
+    } else {
+      useInscripcionesStore.getState().vaciar();
+    }
+  }, [sesion]);
+
+  useEffect(() => {
     function cerrarSesion() {
+      useInscripcionesStore.getState().vaciar();
       setSesion(null);
     }
 
@@ -62,6 +72,7 @@ export function SesionProvider({ children }: { children: ReactNode }) {
 
   function salir() {
     localStorage.removeItem(CLAVE_SESION);
+    useInscripcionesStore.getState().vaciar();
     setSesion(null);
   }
 

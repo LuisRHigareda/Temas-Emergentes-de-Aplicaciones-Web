@@ -1,14 +1,25 @@
 import { Link } from 'react-router';
 import { Cargando } from '../componentes/Cargando.tsx';
 import { MensajeError } from '../componentes/MensajeError.tsx';
-import { useMisInscripciones } from '../hooks/useMisInscripciones.ts';
 import { urlImagen } from '../servicios/api.ts';
+import { useInscripcionesStore } from '../store/useInscripcionesStore.ts';
 
 export function PaginaMisInscripciones() {
-  const { inscripciones, cargando, error, reintentar } = useMisInscripciones();
+  const inscripciones = useInscripcionesStore((estado) => estado.inscripciones);
+  const cargando = useInscripcionesStore((estado) => estado.cargando);
+  const error = useInscripcionesStore((estado) => estado.error);
+  const cargar = useInscripcionesStore((estado) => estado.cargar);
 
   if (cargando) return <Cargando />;
-  if (error) return <MensajeError mensaje={error} onReintentar={reintentar} />;
+
+  if (error) {
+    return (
+      <MensajeError
+        mensaje={error}
+        onReintentar={() => void cargar()}
+      />
+    );
+  }
 
   return (
     <>
@@ -36,6 +47,7 @@ export function PaginaMisInscripciones() {
                 className="inscripcion__imagen"
                 src={urlImagen(inscripcion.clase.imagen)}
                 alt={inscripcion.clase.nombre}
+                loading="lazy"
               />
 
               <div>
