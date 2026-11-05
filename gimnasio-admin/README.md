@@ -1,54 +1,41 @@
-# Práctica 19 - Panel del gimnasio en Angular
-En esta práctica se creó un panel de administración del gimnasio usando Angular.
-El tablero muestra las clases disponibles y un resumen con el total de clases, los minutos semanales y cuántas clases duran 60 minutos o más.
-También se creó un componente para mostrar cada clase por separado.
+# Práctica 20 - Signals, servicio y filtro
+En esta práctica se movió el estado del catálogo a un servicio de Angular usando `signal` y `computed`.
+También se agregó un filtro por categoría, selección de clases y un panel lateral para mostrar el detalle de la clase seleccionada.
 
-## Tablero
-El proyecto trabaja con 8 clases guardadas localmente.
-En el resumen se muestran:
-- 8 clases
-- 380 minutos a la semana
-- 2 clases de 60 minutos o más
-Las tarjetas muestran la imagen, nombre, descripción, categoría y duración de cada clase.
-Las clases de 60 minutos o más muestran la etiqueta `Larga`.
-También se agregaron botones para vaciar y restaurar el catálogo.
-Cuando no hay clases se muestra un mensaje indicando que no hay clases para mostrar.
+## Servicio del catálogo
+El servicio `Catalogo` guarda:
+- las clases
+- la categoría seleccionada
+- la clase elegida
+Las clases visibles y los minutos totales se calculan con `computed()` dependiendo del filtro seleccionado.
 
-## ¿Qué archivo de Angular hace el papel de main.tsx, App.tsx y vite.config.ts?
-En Angular se puede comparar así:
+### ¿Qué diferencia hay entre un signal y un computed?
+Un `signal` guarda un valor que puede cambiar.
+Por ejemplo, la categoría elegida puede cambiar cuando se presiona uno de los botones del filtro.
+Un `computed` obtiene un valor a partir de otros signals. En este caso se usa para obtener las clases visibles y los minutos del filtro.
+Comparándolo con React:
+
 ```text
-React main.tsx       -> Angular src/main.ts
-React App.tsx        -> Angular src/app/app.ts y app.html
-React vite.config.ts -> Angular angular.json
+signal   -> parecido a useState
+computed -> parecido a useMemo
 ```
-`main.ts` inicia la aplicación.
-`app.ts` y `app.html` contienen el componente principal y su plantilla.
-`angular.json` contiene parte de la configuración general del proyecto.
 
-## Tarjeta de clase
-Se creó el componente `tarjeta-clase` para mostrar cada clase.
-La información de la clase llega mediante:
+## Filtro
+Se creó el componente `filtro-categoria` para cambiar la categoría del catálogo.
+El componente obtiene el servicio con:
 
 ```ts
-input.required<Clase>()
+inject(Catalogo)
 ```
-### ¿Por qué clase() lleva paréntesis?
-Porque `clase` es un input creado como signal.
-Para obtener su valor se llama como una función, por eso se escribe:
+Al seleccionar una categoría se actualizan las clases visibles y también cambia el resumen.
+Si una clase estaba seleccionada y después se cambia a un filtro donde esa clase ya no aparece, la selección se limpia.
 
-```html
-{{ clase().nombre }}
-```
+### ¿Qué pasaría si el filtro usara new Catalogo() en lugar de inject(Catalogo)?
+Se crearía otra instancia del servicio.
+Eso significa que el filtro tendría su propio estado y no estaría usando el mismo catálogo que el resto de la aplicación.
+Con `inject(Catalogo)` los componentes trabajan con la misma instancia del servicio.
 
-## ¿Para qué sirve track?
-En el `@for` se utilizó:
-```html
-@for (clase of clases; track clase.id)
-```
-`track` ayuda a Angular a identificar cada elemento de la lista usando su id.
-Así puede saber qué elemento cambió sin tener que volver a crear toda la lista.
-
-## Errores probados
-Durante la práctica también se provocaron los errores:
-- `NG5002`
-- `NG8001`
+## Tarjeta y detalle
+La tarjeta recibe la clase mediante un `input()`.
+También se agregó un `output()` para avisarle al componente padre cuando se selecciona una tarjeta.
+La clase seleccionada se muestra en un panel lateral con su información.
