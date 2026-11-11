@@ -1,41 +1,91 @@
-# Práctica 20 - Signals, servicio y filtro
-En esta práctica se movió el estado del catálogo a un servicio de Angular usando `signal` y `computed`.
-También se agregó un filtro por categoría, selección de clases y un panel lateral para mostrar el detalle de la clase seleccionada.
+# Práctica 21 - Rutas, formulario y API
+En esta práctica se agregaron rutas al panel de administración del gimnasio, un formulario para capturar una nueva clase y la conexión del catálogo con el backend.
 
-## Servicio del catálogo
-El servicio `Catalogo` guarda:
-- las clases
-- la categoría seleccionada
-- la clase elegida
-Las clases visibles y los minutos totales se calculan con `computed()` dependiendo del filtro seleccionado.
+## Rutas
+Se agregaron las páginas de clases, horarios y miembros. La ruta principal redirige a `/clases` y también se agregó una ruta para `/clases/nueva`.
+Para navegar se usaron `routerLink` y `routerLinkActive`.
 
-### ¿Qué diferencia hay entre un signal y un computed?
-Un `signal` guarda un valor que puede cambiar.
-Por ejemplo, la categoría elegida puede cambiar cuando se presiona uno de los botones del filtro.
-Un `computed` obtiene un valor a partir de otros signals. En este caso se usa para obtener las clases visibles y los minutos del filtro.
-Comparándolo con React:
+### ¿Qué parte de React Router corresponde a router-outlet, routerLink y routerLinkActive?
+Se pueden comparar así:
 
 ```text
-signal   -> parecido a useState
-computed -> parecido a useMemo
+router-outlet     -> Outlet
+routerLink        -> Link
+routerLinkActive  -> NavLink
 ```
 
-## Filtro
-Se creó el componente `filtro-categoria` para cambiar la categoría del catálogo.
-El componente obtiene el servicio con:
+`router-outlet` es el lugar donde aparece la página correspondiente a la ruta actual.
 
-```ts
-inject(Catalogo)
+### ¿Por qué la ruta ** va al final y la ruta vacía usa pathMatch: 'full'?
+La ruta `**` funciona como comodín, así que se deja al final para que primero se revisen las rutas que sí existen.
+En la ruta vacía se usa `pathMatch: 'full'` para que la redirección ocurra solamente cuando la dirección sea exactamente `/`.
+
+## Formulario de nueva clase
+Se creó un formulario reactivo para capturar:
+
+- nombre
+- categoría
+- descripción
+- duración
+- imagen
+Los errores aparecen después de tocar el campo o intentar guardar el formulario.
+También se agregó un validador para que la duración solamente acepte bloques de 5 minutos. Por ejemplo, `45` es válido pero `47` no.
+Al guardar un formulario válido solamente se muestra el objeto que se mandaría a la API. En esta práctica todavía no se hace el POST.
+
+### ¿Dónde vive el valor de un campo en un formulario reactivo y qué diferencia tiene con useState?
+En un formulario reactivo el valor está dentro del `FormControl` que forma parte del `FormGroup`.
+En React normalmente se usaría `useState` y habría que actualizar el estado desde los eventos del input. En Angular el formulario ya se encarga de guardar el valor y también su estado de validación.
+
+### ¿Qué regresa un validador propio?
+Cuando el valor es válido regresa:
+
+```text
+null
 ```
-Al seleccionar una categoría se actualizan las clases visibles y también cambia el resumen.
-Si una clase estaba seleccionada y después se cambia a un filtro donde esa clase ya no aparece, la selección se limpia.
+Cuando no es válido regresa un objeto con el error. El nombre de ese error se puede consultar después con `hasError()` para mostrar el mensaje correspondiente.
 
-### ¿Qué pasaría si el filtro usara new Catalogo() en lugar de inject(Catalogo)?
-Se crearía otra instancia del servicio.
-Eso significa que el filtro tendría su propio estado y no estaría usando el mismo catálogo que el resto de la aplicación.
-Con `inject(Catalogo)` los componentes trabajan con la misma instancia del servicio.
+## Catálogo desde la API
+El catálogo dejó de usar las clases guardadas localmente y ahora obtiene los datos desde:
 
-## Tarjeta y detalle
-La tarjeta recibe la clase mediante un `input()`.
-También se agregó un `output()` para avisarle al componente padre cuando se selecciona una tarjeta.
-La clase seleccionada se muestra en un panel lateral con su información.
+```text
+GET http://localhost:3000/clases
+```
+También se muestran los estados de carga y error, y las imágenes se obtienen desde el backend.
+
+### ¿Qué cambió en el servicio del catálogo y por qué los componentes no se enteraron?
+Cambió la forma en la que el servicio obtiene las clases.
+Antes las tomaba de un arreglo local y ahora utiliza `httpResource` para pedirlas al backend.
+Los componentes siguieron usando el servicio de la misma forma, por eso no fue necesario cambiar cómo consumen el catálogo.
+
+### ¿Por qué no hizo falta iniciar sesión para leer el catálogo?
+Porque `GET /clases` es una ruta pública del backend.
+Para consultar las clases no se necesita mandar un token ni iniciar sesión.
+
+## Ejecutar
+
+Backend:
+
+```bash
+cd gimnasio-backend
+npm run start:dev
+```
+
+Frontend:
+
+```bash
+cd gimnasio-admin
+ng serve
+```
+
+El backend corre en:
+
+```text
+http://localhost:3000
+```
+
+y el frontend en:
+
+```text
+http://localhost:4200
+```
+
