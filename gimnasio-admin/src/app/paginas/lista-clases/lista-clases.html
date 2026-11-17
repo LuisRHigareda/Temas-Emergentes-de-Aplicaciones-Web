@@ -69,6 +69,9 @@
             <span class="dato__clave">ID:</span>
             <span class="dato__valor">{{ clase.id }}</span>
           </p>
+          <div class="acciones">
+            <a class="boton" [routerLink]="['/clases', clase.id, 'editar']">Editar</a>
+          </div>
         </aside>
       }
     </div>

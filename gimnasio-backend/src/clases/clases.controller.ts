@@ -23,14 +23,14 @@ export class ClasesController {
   constructor(private readonly clasesService: ClasesService) {}
 
   /** GET /clases y GET /clases?q=yoga (el buscador de la Unidad IV) */
-  @Publico() // el catalogo lo ve cualquiera, sin cuenta
+  @Roles(Rol.admin) // el catalogo lo ve cualquiera, sin cuenta
   @Get()
   listar(@Query('q') q?: string) {
     return this.clasesService.listar(q?.trim() || undefined);
   }
 
   /** GET /clases/2 */
-  @Publico()
+  @Roles(Rol.admin)
   @Get(':id')
   async buscar(@Param('id', ParseIntPipe) id: number) {
     // Regresa la clase con sus horarios y lugares libres.
@@ -46,7 +46,7 @@ export class ClasesController {
   // Sin token: 401. Con token de miembro o entrenador: 403.
 
   /** POST /clases */
-  @Roles(Rol.admin)
+ @Roles(Rol.admin)
   @Post()
   @HttpCode(201)
   crear(@Body() dto: CrearClaseDto) {

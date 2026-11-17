@@ -68,6 +68,7 @@ export class Catalogo {
   }
 
   reintentar(): void {
+    this.seleccionada.set(null);
     this.recurso.reload();
   }
 }
