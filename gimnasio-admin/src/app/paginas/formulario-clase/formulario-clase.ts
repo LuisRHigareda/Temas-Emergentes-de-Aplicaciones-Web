@@ -103,7 +103,7 @@ export class FormularioClase {
     peticion.pipe(finalize(() => this.guardando.set(false))).subscribe({
       next: () => {
         this.formulario.markAsPristine(); // Evita confirmar al salir tras guardar.
-        this.catalogo.reintentar();
+        this.catalogo.recargar();
         void this.router.navigateByUrl('/clases');
       },
       error: (error: unknown) => this.error.set(mensajeDeApi(error)),
@@ -119,7 +119,7 @@ export class FormularioClase {
     this.api.eliminar(id).pipe(finalize(() => this.eliminando.set(false))).subscribe({
       next: () => {
         this.formulario.markAsPristine();
-        this.catalogo.reintentar();
+        this.catalogo.recargar();
         void this.router.navigateByUrl('/clases');
       },
       error: (error: unknown) => this.error.set(mensajeDeApi(error)),

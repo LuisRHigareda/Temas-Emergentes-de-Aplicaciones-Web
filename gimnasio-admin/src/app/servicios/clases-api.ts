@@ -8,6 +8,12 @@ export class ClasesApi {
   private readonly http = inject(HttpClient);
   private readonly url = `${API_URL}/clases`;
 
+  buscar(q: string) {
+    return this.http.get<Sobre<Clase[]>>(this.url, {
+      params: q ? { q } : {},
+    });
+  }
+
   crear(clase: ClaseNueva) {
     return this.http.post<Sobre<Clase>>(this.url, clase);
   }

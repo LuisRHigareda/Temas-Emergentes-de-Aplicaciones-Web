@@ -1,55 +1,39 @@
-# Práctica 22 - Guardar, login y editar clases
+# Práctica 23 - El buscador con RxJS
 
-En esta práctica continuamos con el panel de administración del gimnasio. Se agregó la opción para guardar clases en el backend, iniciar sesión como administrador, editar y eliminar clases. También se implementó una confirmación para evitar salir del formulario cuando hay cambios sin guardar.
+En esta práctica agregué un buscador de clases por nombre al panel del gimnasio. El texto se manda a la API después de dejar de escribir por un momento. Cuando se hace otra búsqueda, se cancela la petición anterior para no mostrar resultados atrasados. Se conservaron el filtro por categoría, el login y las opciones de crear, editar y eliminar de la Práctica 22.
 
-## Ejercicio 1 - Guardar clases con POST
+## Preguntas
 
-Se creó el servicio `clases-api` para enviar las clases al backend usando `HttpClient`. Al guardar una clase correctamente, el catálogo se actualiza y regresa a la lista.
+**1. ¿Qué diferencia hay entre un signal y un Observable?**
 
-También se probaron las validaciones del servidor y las respuestas 400 y 401. Primero se permitió temporalmente crear clases sin autenticación y después se restauró la protección del administrador.
+Un signal guarda un valor que se puede consultar directamente y que Angular utiliza para actualizar la pantalla. Un Observable emite valores a lo largo del tiempo y permite trabajar con operadores como `switchMap` o `debounceTime`. Aquí usamos RxJS para controlar las peticiones y `toSignal` para mostrar su resultado en Angular.
 
-**¿Si el formulario ya valida, por qué también valida el servidor?**
+**2. ¿Qué problema evita switchMap y qué pasaría con mergeMap?**
 
-Porque alguien puede enviar datos directamente a la API sin utilizar el formulario. Las validaciones de Angular ayudan al usuario, pero el servidor debe comprobar que la información sea correcta antes de guardarla.
+`switchMap` deja de escuchar la consulta anterior cuando llega un texto nuevo. Así evita que una respuesta vieja reemplace los resultados de la búsqueda más reciente. Con `mergeMap`, las consultas seguirían activas al mismo tiempo y podrían terminar en otro orden.
 
-**¿Por qué httpResource para leer y HttpClient para crear, editar y eliminar?**
+**3. ¿Qué pasa si se quita catchError y la API se apaga?**
 
-`httpResource` facilita consultar datos y actualizar la información que se muestra. `HttpClient` permite realizar las peticiones POST, PATCH y DELETE cuando el usuario presiona un botón.
+El error podría terminar el Observable del buscador. Aunque después vuelva a encenderse la API, escribir otra palabra ya no iniciaría nuevas consultas desde esa suscripción. Con `catchError` dentro del `switchMap` mostramos el error y permitimos volver a buscar o reintentar.
 
-**¿Qué pasa si se olvida subscribe()?**
+## Cómo ejecutar
 
-La petición no se ejecuta porque los observables de `HttpClient` necesitan una suscripción. Por lo tanto, los cambios no llegarían al servidor.
+Se requiere MySQL y el backend del gimnasio configurado como en la Práctica 22. No es necesario volver a ejecutar el seed si ya están las clases.
 
-## Ejercicio 2 - Login, interceptores y guardia
+Backend, desde `gimnasio-backend`:
 
-Se agregó el inicio de sesión y se protegieron las páginas del panel para que solamente pueda entrar un administrador. Los interceptores permiten enviar el token en las peticiones y manejar los errores de autenticación.
+```powershell
+$env:RETARDO_MS = '1200'
+npm run start:dev
+```
 
-Se comprobó que la cuenta de miembro no puede acceder al panel y que un administrador puede crear clases utilizando su token.
+El retardo sólo se usa para la captura de peticiones canceladas. Para utilizar el sistema normalmente se puede iniciar sin esa variable o asignarle `0`.
 
-**¿A qué piezas de React corresponden las rutas hijas, el interceptor y el guardia?**
+Frontend, desde `gimnasio-admin`:
 
-Las rutas hijas son similares a las rutas anidadas de React Router con `Outlet`. El interceptor se parece a los interceptores de Axios y el guardia a una ruta protegida (`ProtectedRoute`).
+```powershell
+npm run start
+```
 
-**¿Cuándo se ejecuta el guardia y por qué salir() tiene que navegar al login?**
+Abrir `http://localhost:4200/entrar` e iniciar sesión con la cuenta de administrador que se usó en la Práctica 22. El backend responde en `http://localhost:3000`.
 
-El guardia se ejecuta cuando se intenta entrar a una ruta protegida. Al cerrar sesión es necesario regresar al login para que el usuario no permanezca en el panel después de eliminar su sesión.
-
-## Ejercicio 3 - Editar, eliminar y guarda de salida
-
-Se reutilizó el formulario para crear y editar clases. Al seleccionar una clase, sus datos aparecen en el formulario y se pueden modificar. También se agregó la opción de eliminar con confirmación y una guarda para advertir cuando hay cambios sin guardar.
-
-**¿Cómo decide el mismo formulario si manda POST o PATCH?**
-
-Depende del ID recibido en la ruta. Si estamos creando una clase nueva, no hay ID y se utiliza POST. Si estamos editando una clase existente, se recibe su ID y se utiliza PATCH.
-
-**¿Por qué el estado del formulario no se puede observar con computed()?**
-
-Porque las propiedades del formulario reactivo, como `dirty` y `valid`, no son signals. `computed()` solamente detecta cambios en signals, por lo que se necesita consultar directamente el formulario o convertir sus cambios a una señal.
-
-**¿Qué diferencia hay entre canActivate y canDeactivate, y qué casos no cubre la guarda de salida?**
-
-`canActivate` controla si podemos entrar a una ruta, mientras que `canDeactivate` controla si podemos salir de ella. La guarda de salida funciona con la navegación de Angular, pero no necesariamente detecta cuando se cierra la pestaña, se recarga la página o se cierra el navegador.
-
-## Evidencias
-
-Las capturas de las pruebas están guardadas en la carpeta `evidencias`. Se incluyeron las respuestas 400 y 401, el rechazo de la cuenta de miembro, la creación mediante POST 201 con token, la edición con PATCH 200, la eliminación con DELETE 200 y la confirmación al salir con cambios sin
