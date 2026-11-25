@@ -39,6 +39,7 @@ export function PaginaClase() {
       await inscribirse(horarioId);
       await cargarInscripciones();
       setAviso('Inscripción realizada correctamente.');
+      navigator.vibrate?.(80);
       reintentar();
     } catch (e) {
       setErrorInscripcion(
@@ -46,6 +47,32 @@ export function PaginaClase() {
       );
     } finally {
       setEnviando(null);
+    }
+  }
+
+  async function compartir() {
+    if (!clase) return;
+    const datos = {
+      title: clase.nombre,
+      text: `${clase.nombre} en Gimnasio Titanes · ${clase.duracionMin} min`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(datos);
+        return;
+      } catch (error) {
+        // Cancelar la hoja nativa no es un error.
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(datos.url);
+      setAviso('Enlace copiado. Pégalo donde quieras compartirlo.');
+    } catch {
+      setErrorInscripcion('No se pudo copiar el enlace. Puedes copiarlo desde la barra de direcciones.');
     }
   }
 
@@ -79,6 +106,11 @@ export function PaginaClase() {
           <h1>{clase.nombre}</h1>
           <p className="pagina__bajada">
             {clase.descripcion} · {clase.duracionMin} min
+          </p>
+          <p>
+            <button type="button" className="boton boton--secundario boton--chico" onClick={() => void compartir()}>
+              Compartir
+            </button>
           </p>
 
           <h2>Horarios</h2>

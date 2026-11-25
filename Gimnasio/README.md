@@ -1,75 +1,37 @@
-# Práctica 18 - Lazy loading y Zustand
-En esta práctica se trabajó con lazy loading para separar las páginas del gimnasio y también se agregó Zustand para manejar las inscripciones desde un mismo lugar.
+# Práctica 24 - El gimnasio instalable (PWA)
+Esta práctica se hizo sobre el proyecto React del gimnasio de la Práctica 18. Se agregó soporte PWA para instalarlo y abrir las páginas visitadas aun cuando no haya conexión. También se añadieron los botones de instalar y compartir, un aviso de conexión y una vibración breve después de una inscripción exitosa.
 
-## Lazy loading
-Antes de hacer los cambios, el archivo principal de JavaScript pesaba:
+## Cómo ejecutarlo
 
-```text
-325.01 kB
-```
-Después de usar `React.lazy` quedó en:
+Primero encender MySQL y la API desde `gimnasio-backend` (el backend de las prácticas 22 y 23, que permite el origen `http://localhost:4173`):
 
-```text
-320.66 kB
-```
-Además se generaron archivos separados para varias páginas, por ejemplo:
-
-```text
-PaginaClases
-PaginaClase
-PaginaEntrar
-PaginaRegistro
-PaginaMisInscripciones
-NoEncontrado
-```
-Desde la pestaña Network se pudo ver que estos archivos se descargan cuando se entra a cada ruta.
-También se agregó `loading="lazy"` a las imágenes del catálogo.
-
-### ¿Cuánto se ahorró y por qué el ahorro es pequeño?
-El archivo principal bajó aproximadamente 4.35 kB.
-El cambio no es tan grande porque la aplicación todavía es pequeña y varias dependencias siguen siendo compartidas por todas las páginas. Aun así, ahora cada página puede cargarse cuando realmente se necesita.
-
-### ¿Por qué falla la API si el preview corre en el puerto 4173?
-El backend permite peticiones desde `http://localhost:5173`.
-Cuando el preview corre en `http://localhost:4173`, el origen cambia y el navegador bloquea la petición por CORS.
-Para probar el build usando el puerto permitido se utilizó:
-
-```bash
-npm run preview -- --port 5173
-```
-
-## Zustand
-Se creó un store para guardar las inscripciones del usuario.
-Al iniciar sesión se cargan las inscripciones y al cerrar sesión se vacían.
-El store se utiliza para:
-- mostrar el número de inscripciones en el encabezado
-- mostrar la lista de `Mis inscripciones`
-- marcar un horario como `Inscrito`
-- actualizar el contador después de una inscripción nueva
-
-### ¿Cuándo conviene un contexto y cuándo un store?
-El contexto sirve bien para datos sencillos que necesita toda la aplicación, como la sesión del usuario.
-Un store como Zustand resulta más cómodo cuando el mismo estado se consulta o cambia desde varios lugares. Aquí serian las inscripciones se usan en el encabezado, el detalle de las clases y la página de mis inscripciones.
-
-## Ejecutar
-Backend:
-
-```bash
-cd backend
-npx prisma db seed
+```powershell
 npm run start:dev
 ```
 
-Frontend:
+Desde la carpeta `Gimnasio` de este repositorio:
 
-```bash
+```powershell
 npm install
-npm run dev
-```
-
-Para generar el build:
-
-```bash
 npm run build
+npm run preview
 ```
 
+Abrir `http://localhost:4173/clases`. El servicio debe estar en `http://localhost:3000`. Si se usa otra dirección, configurar `VITE_API_URL` antes de compilar. Para probar la PWA hay que usar `build` y `preview`, no `dev`.
+
+## Preguntas
+
+**¿Cuáles son los tres requisitos de una PWA y qué hace cada uno?**
+Un manifiesto indica el nombre, los íconos y cómo se abre la aplicación. El service worker guarda recursos y permite abrir la aplicación cuando falla la conexión. Por último, se necesita un contexto seguro (HTTPS o localhost) para registrar el service worker y utilizar las funciones del navegador.
+
+**¿Qué archivos generó vite-plugin-pwa en dist/ y para qué sirve cada uno?**
+`manifest.webmanifest` contiene los datos para instalar la aplicación. `sw.js` es el service worker que controla la caché y la navegación. `registerSW.js` registra el service worker desde el navegador.
+
+**¿Por qué las clases usan NetworkFirst y las imágenes CacheFirst?**
+Las clases y sus horarios pueden cambiar, por lo que se consulta primero el servidor y se usa la versión guardada cuando no hay red. Las imágenes cambian poco, así que conviene reutilizar las que ya están en caché para que carguen más rápido.
+
+**¿Por qué en npm run dev no hay service worker?**
+Porque se dejó desactivado en desarrollo. El plugin genera y registra el service worker durante la compilación para producción. Se comprueba con `npm run build` y `npm run preview`.
+
+**¿Qué diferencia hay entre una PWA y una aplicación híbrida?**
+La PWA es una aplicación web que se puede instalar desde el navegador y usa sus APIs disponibles. Una aplicación híbrida se empaqueta en un contenedor nativo y puede acceder a funciones del dispositivo mediante plugins o puentes nativos.

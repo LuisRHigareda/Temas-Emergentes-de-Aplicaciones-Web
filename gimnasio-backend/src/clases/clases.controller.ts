@@ -23,14 +23,14 @@ export class ClasesController {
   constructor(private readonly clasesService: ClasesService) {}
 
   /** GET /clases y GET /clases?q=yoga (el buscador de la Unidad IV) */
-  @Roles(Rol.admin) // el catalogo lo ve cualquiera, sin cuenta
+  @Publico()
   @Get()
   listar(@Query('q') q?: string) {
     return this.clasesService.listar(q?.trim() || undefined);
   }
 
   /** GET /clases/2 */
-  @Roles(Rol.admin)
+  @Publico()
   @Get(':id')
   async buscar(@Param('id', ParseIntPipe) id: number) {
     // Regresa la clase con sus horarios y lugares libres.
